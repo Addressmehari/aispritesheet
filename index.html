@@ -83,6 +83,22 @@
             font-weight: bold;
             color: #333;
         }
+
+        .download-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .download-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -107,6 +123,7 @@
             <h3>Your Sprite Sheet</h3>
             <img id="outputImage" alt="" />
             <p class="output-description">Your sprite sheet is generated!</p>
+            <a id="downloadButton" class="download-button" href="#" download="sprite-sheet.png">Download Sprite Sheet</a>
         </div>
     </div>
 
@@ -120,6 +137,7 @@
         const confirmButton = document.getElementById('confirmButton');
         const displayImage = document.getElementById('displayImage');
         const outputImage = document.getElementById('outputImage');
+        const downloadButton = document.getElementById('downloadButton');
 
         let drawing = false;
 
@@ -148,7 +166,9 @@
 
             // Simulate loading
             setTimeout(() => {
-                outputImage.src = 'https://raw.githubusercontent.com/Addressmehari/aispritesheet/main/download.png';
+                const spriteSheetURL = 'https://raw.githubusercontent.com/Addressmehari/aispritesheet/main/download.png';
+                outputImage.src = spriteSheetURL;
+                downloadButton.href = spriteSheetURL;
             }, 2000); // Loading time
         });
     </script>
