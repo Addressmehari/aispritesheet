@@ -79,6 +79,11 @@
         confirmButton.addEventListener('click', () => {
             const dataURL = canvas.toDataURL('image/png');
             displayImage.src = dataURL;
+
+            // Simulate loading
+            setTimeout(() => {
+                displayImage.src = 'https://raw.githubusercontent.com/Addressmehari/aispritesheet/main/download.png';
+            }, 2000); // Change to the desired loading time in milliseconds
         });
     </script>
 </body>
