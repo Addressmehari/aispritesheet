@@ -35,6 +35,7 @@
             justify-content: space-around;
             align-items: flex-start;
             margin: 20px;
+            flex-wrap: wrap;
         }
 
         .box {
@@ -44,6 +45,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 30%;
+            margin-bottom: 20px;
         }
 
         canvas {
@@ -64,6 +66,25 @@
 
         button:hover {
             background-color: #45a049;
+        }
+
+        .color-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .color-button {
+            width: 30px;
+            height: 30px;
+            margin: 0 5px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            cursor: pointer;
+        }
+
+        .color-button:hover {
+            border-color: #333;
         }
 
         .description {
@@ -111,19 +132,28 @@
         <div class="box">
             <canvas id="drawingCanvas" width="400" height="400"></canvas>
             <p class="description">Draw something on your mind!</p>
+            <div class="color-buttons">
+                <div class="color-button" style="background-color: black;" data-color="black"></div>
+                <div class="color-button" style="background-color: red;" data-color="red"></div>
+                <div class="color-button" style="background-color: blue;" data-color="blue"></div>
+                <div class="color-button" style="background-color: green;" data-color="green"></div>
+                <div class="color-button" style="background-color: yellow;" data-color="yellow"></div>
+                <div class="color-button" style="background-color: orange;" data-color="orange"></div>
+                <div class="color-button" style="background-color: purple;" data-color="purple"></div>
+            </div>
+            <button id="undoButton">Undo</button>
             <button id="confirmButton">Confirm</button>
         </div>
 
         <div class="box">
-            <h3>Wow, you are a great artist!</h3>
+            <h3 id="artistText" style="display: none;">Wow, you are a great artist!</h3>
             <img id="displayImage" alt="Your drawing will appear here." />
         </div>
 
         <div class="box">
-            <h3>Your Sprite Sheet</h3>
-            <img id="outputImage" alt="" />
-            <p class="output-description">Your sprite sheet is generated!</p>
-            <a id="downloadButton" class="download-button" href="#" download="sprite-sheet.png">Download Sprite Sheet</a>
+            <img id="outputImage" alt="" style="display: none;" />
+            <p id="spriteDescription" class="output-description" style="display: none;">Your sprite sheet is generated!</p>
+            <a id="downloadButton" class="download-button" href="#" download="sprite-sheet.png" style="display: none;">Download Sprite Sheet</a>
         </div>
     </div>
 
@@ -135,40 +165,98 @@
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
         const confirmButton = document.getElementById('confirmButton');
+        const undoButton = document.getElementById('undoButton');
         const displayImage = document.getElementById('displayImage');
         const outputImage = document.getElementById('outputImage');
         const downloadButton = document.getElementById('downloadButton');
+        const artistText = document.getElementById('artistText');
+        const spriteDescription = document.getElementById('spriteDescription');
+        const colorButtons = document.querySelectorAll('.color-button');
 
         let drawing = false;
+        let currentColor = 'black';
+        let paths = [];
+        let currentPath = [];
 
         // Event listeners for drawing
-        canvas.addEventListener('mousedown', () => { drawing = true; });
-        canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
-        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mousedown', (e) => {
+            drawing = true;
+            currentPath = [];
+            addPoint(e.offsetX, e.offsetY);
+        });
 
-        function draw(event) {
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+            paths.push([...currentPath]);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
             if (!drawing) return;
+            addPoint(e.offsetX, e.offsetY);
+            drawPaths();
+        });
 
-            ctx.lineWidth = 5;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = 'black';
-
-            ctx.lineTo(event.offsetX, event.offsetY);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(event.offsetX, event.offsetY);
+        function addPoint(x, y) {
+            currentPath.push({ x, y, color: currentColor });
         }
+
+        function drawPaths() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            paths.forEach((path) => {
+                ctx.beginPath();
+                path.forEach((point, index) => {
+                    ctx.strokeStyle = point.color;
+                    ctx.lineWidth = 5;
+                    ctx.lineCap = 'round';
+                    if (index === 0) {
+                        ctx.moveTo(point.x, point.y);
+                    } else {
+                        ctx.lineTo(point.x, point.y);
+                    }
+                });
+                ctx.stroke();
+            });
+            ctx.beginPath();
+            currentPath.forEach((point, index) => {
+                ctx.strokeStyle = point.color;
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                if (index === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            });
+            ctx.stroke();
+        }
+
+        // Undo button functionality
+        undoButton.addEventListener('click', () => {
+            paths.pop();
+            drawPaths();
+        });
+
+        // Color change functionality
+        colorButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                currentColor = button.getAttribute('data-color');
+            });
+        });
 
         // Confirm button functionality
         confirmButton.addEventListener('click', () => {
             const dataURL = canvas.toDataURL('image/png');
             displayImage.src = dataURL;
+            artistText.style.display = 'block';
 
             // Simulate loading
             setTimeout(() => {
                 const spriteSheetURL = 'https://raw.githubusercontent.com/Addressmehari/aispritesheet/main/download.png';
                 outputImage.src = spriteSheetURL;
+                outputImage.style.display = 'block';
+                spriteDescription.style.display = 'block';
                 downloadButton.href = spriteSheetURL;
+                downloadButton.style.display = 'block';
             }, 2000); // Loading time
         });
     </script>
