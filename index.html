@@ -3,52 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draw with Cursor</title>
+    <title>Drawing Canvas Prototype</title>
     <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
         canvas {
-            border: 1px solid black;
-            cursor: crosshair;
+            border: 1px solid #000;
+        }
+        .display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        img {
+            max-width: 200px;
+            max-height: 200px;
         }
     </style>
 </head>
 <body>
-    <h1>Draw with Your Cursor</h1>
-    <canvas id="myCanvas" width="500" height="400"></canvas>
+    <div class="container">
+        <div>
+            <canvas id="drawingCanvas" width="400" height="400"></canvas>
+            <button id="confirmButton">Confirm</button>
+        </div>
+        <div class="display">
+            <h3>Displayed Image:</h3>
+            <img id="displayImage" alt="" />
+        </div>
+    </div>
 
     <script>
-        const canvas = document.getElementById('myCanvas');
+        const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
+        const confirmButton = document.getElementById('confirmButton');
+        const displayImage = document.getElementById('displayImage');
 
         let drawing = false;
 
-        // Function to start drawing
-        canvas.addEventListener('mousedown', () => {
-            drawing = true;
-        });
+        // Event listeners for drawing
+        canvas.addEventListener('mousedown', () => { drawing = true; });
+        canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
+        canvas.addEventListener('mousemove', draw);
 
-        // Function to stop drawing
-        canvas.addEventListener('mouseup', () => {
-            drawing = false;
-            ctx.beginPath(); // Reset the path so lines don’t connect
-        });
-
-        // Function to draw on the canvas
-        canvas.addEventListener('mousemove', (event) => {
+        function draw(event) {
             if (!drawing) return;
 
-            // Get cursor position relative to the canvas
-            const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'black';
 
-            ctx.lineWidth = 2; // Set line width
-            ctx.lineCap = 'round'; // Set line ending style
-            ctx.strokeStyle = 'blue'; // Set line color
+            ctx.lineTo(event.offsetX, event.offsetY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(event.offsetX, event.offsetY);
+        }
 
-            ctx.lineTo(x, y); // Draw a line to the current position
-            ctx.stroke(); // Render the line
-            ctx.beginPath(); // Reset path for smoother drawing
-            ctx.moveTo(x, y); // Move to the current position
+        // Confirm button functionality
+        confirmButton.addEventListener('click', () => {
+            const dataURL = canvas.toDataURL('image/png');
+            displayImage.src = dataURL;
         });
     </script>
 </body>
