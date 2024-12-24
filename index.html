@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw with Cursor</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body>
+    <h1>Draw with Your Cursor</h1>
+    <canvas id="myCanvas" width="500" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let drawing = false;
+
+        // Function to start drawing
+        canvas.addEventListener('mousedown', () => {
+            drawing = true;
+        });
+
+        // Function to stop drawing
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+            ctx.beginPath(); // Reset the path so lines don’t connect
+        });
+
+        // Function to draw on the canvas
+        canvas.addEventListener('mousemove', (event) => {
+            if (!drawing) return;
+
+            // Get cursor position relative to the canvas
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            ctx.lineWidth = 2; // Set line width
+            ctx.lineCap = 'round'; // Set line ending style
+            ctx.strokeStyle = 'blue'; // Set line color
+
+            ctx.lineTo(x, y); // Draw a line to the current position
+            ctx.stroke(); // Render the line
+            ctx.beginPath(); // Reset path for smoother drawing
+            ctx.moveTo(x, y); // Move to the current position
+        });
+    </script>
+</body>
+</html>
