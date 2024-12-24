@@ -3,57 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drawing Canvas Prototype</title>
+    <title>AI Powered Sprite Sheet Generator</title>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
         }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 20px;
+            background-color: #222;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+        }
+
         .container {
             display: flex;
-            gap: 20px;
-            align-items: center;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin: 20px;
         }
+
+        .box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 30%;
+        }
+
         canvas {
-            border: 1px solid #000;
+            border: 2px dashed #4CAF50;
+            margin-bottom: 10px;
         }
-        .display {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+
         button {
             margin-top: 10px;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .description {
+            margin-top: 10px;
+            font-style: italic;
+            color: #555;
+        }
+
         img {
-            max-width: 200px;
-            max-height: 200px;
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .output-description {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
         }
     </style>
 </head>
 <body>
+    <header>
+        AI Powered Sprite Sheet Generator <br>
+        <span style="font-size: 18px;">DOUBLE HASH</span>
+    </header>
+
     <div class="container">
-        <div>
+        <div class="box">
             <canvas id="drawingCanvas" width="400" height="400"></canvas>
+            <p class="description">Draw something on your mind!</p>
             <button id="confirmButton">Confirm</button>
         </div>
-        <div class="display">
-            <h3>Displayed Image:</h3>
-            <img id="displayImage" alt="" />
+
+        <div class="box">
+            <h3>Wow, you are a great artist!</h3>
+            <img id="displayImage" alt="Your drawing will appear here." />
+        </div>
+
+        <div class="box">
+            <h3>Your Sprite Sheet</h3>
+            <img id="outputImage" alt="" />
+            <p class="output-description">Your sprite sheet is generated!</p>
         </div>
     </div>
+
+    <footer>
+        This is a prototype website made to showcase how the final product will look. This is part of a start-up plan.
+    </footer>
 
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
         const confirmButton = document.getElementById('confirmButton');
         const displayImage = document.getElementById('displayImage');
+        const outputImage = document.getElementById('outputImage');
 
         let drawing = false;
 
@@ -82,8 +148,8 @@
 
             // Simulate loading
             setTimeout(() => {
-                displayImage.src = 'https://raw.githubusercontent.com/Addressmehari/aispritesheet/main/download.png';
-            }, 2000); // Change to the desired loading time in milliseconds
+                outputImage.src = 'https://raw.githubusercontent.com/Addressmehari/aispritesheet/main/download.png';
+            }, 2000); // Loading time
         });
     </script>
 </body>
