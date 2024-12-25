@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Powered Sprite Sheet Generator</title>
-    <style>
+    <style>           
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #eef2f7;
+            background-color: #f0f0f0;
             color: #333;
         }
 
         header {
-            background-color: #4a90e2;
+            background-color: #4caf50;
             color: white;
             padding: 20px;
             text-align: center;
@@ -23,7 +23,7 @@
 
         footer {
             margin-top: 20px;
-            background-color: #4a90e2;
+            background-color: #4caf50;
             color: white;
             text-align: center;
             padding: 10px 0;
@@ -33,39 +33,49 @@
         .container {
             display: flex;
             justify-content: space-evenly;
-            margin: 20px auto;
-            max-width: 1200px;
+            margin: 40px auto;
+            max-width: 1000px;
+            gap: 30px;
         }
 
         .box {
             background-color: #fff;
-            padding: 20px;
+            padding: 15px;
             border: 1px solid #ccc;
             border-radius: 8px;
             text-align: center;
-            width: 30%;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            width: 25%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
 
         canvas {
-            border: 2px solid #4a90e2;
+            border: 2px solid #4caf50;
             margin-bottom: 10px;
+            width: 200px;
+            height: 200px;
         }
 
         button {
             margin-top: 10px;
             padding: 10px 20px;
             font-size: 16px;
-            background-color: #4a90e2;
+            background-color: #4caf50;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
         }
 
         button:hover {
-            background-color: #357ab8;
+            background-color: #388e3c;
+            transform: scale(1.05);
         }
 
         img {
@@ -76,13 +86,13 @@
 
         .log {
             font-size: 14px;
-            color: #555;
+            color: #666;
         }
 
         .loading-bar {
             width: 0;
             height: 10px;
-            background-color: #4a90e2;
+            background-color: #4caf50;
             border-radius: 5px;
             margin: 10px auto;
             transition: width 7s ease-in-out;
@@ -91,10 +101,48 @@
         .loading-container {
             width: 100%;
             max-width: 200px;
-            background-color: #ccc;
+            background-color: #ddd;
             border-radius: 5px;
             margin: 0 auto 20px;
             overflow: hidden;
+        }
+
+        .toolbar {
+            margin-bottom: 10px;
+        }
+
+        .toolbar button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+            border: 1px solid #4caf50;
+            background-color: #fff;
+            color: #4caf50;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .toolbar button:hover {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .feature-buttons {
+            margin-top: 10px;
+        }
+
+        .feature-buttons button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .feature-buttons button:hover {
+            background-color: #4caf50;
+            color: white;
         }
     </style>
 </head>
@@ -105,12 +153,28 @@
 
     <div class="container">
         <div class="box">
-            <canvas id="drawingCanvas" width="400" height="400"></canvas>
-            <button id="confirmButton">Confirm</button>
+            <div class="toolbar">
+                <button onclick="undo()">Undo</button>
+                <button onclick="setBrushColor('#ff0000')">Red</button>
+                <button onclick="setBrushColor('#00ff00')">Green</button>
+                <button onclick="setBrushColor('#0000ff')">Blue</button>
+                <button onclick="setBrushColor('#ff00ff')">Pink</button>
+                <button onclick="setBrushColor('#ffa500')">Orange</button>
+                <button onclick="setBrushColor('#000000')">Black</button>
+                <button onclick="setBrushColor('#808080')">Gray</button>
+            </div>
+            <canvas id="drawingCanvas" width="200" height="200"></canvas>
+            <button id="confirmDrawingButton">Confirm Drawing</button>
         </div>
 
         <div class="box">
             <img id="displayImage" alt="Your drawing will appear here." />
+            <div class="feature-buttons">
+                <button id="basicButton" onclick="selectFeature('basic')">Basic</button>
+                <button id="proButton" onclick="selectFeature('pro')">Pro</button>
+                <button id="ultraButton" onclick="selectFeature('ultra')">Ultra</button>
+            </div>
+            <button id="confirmFeatureButton">Confirm Feature</button>
             <div class="log" id="drawingLog"></div>
         </div>
 
@@ -120,6 +184,7 @@
                 <div id="loadingBar" class="loading-bar"></div>
             </div>
             <img id="outputImage" alt="" />
+            <button id="downloadButton" style="display:none;">Download</button>
             <div class="log" id="spriteLog"></div>
         </div>
     </div>
@@ -131,32 +196,41 @@
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
-        const confirmButton = document.getElementById('confirmButton');
+        const confirmDrawingButton = document.getElementById('confirmDrawingButton');
+        const confirmFeatureButton = document.getElementById('confirmFeatureButton');
         const displayImage = document.getElementById('displayImage');
         const outputImage = document.getElementById('outputImage');
         const loadingBar = document.getElementById('loadingBar');
         const drawingLog = document.getElementById('drawingLog');
         const spriteLog = document.getElementById('spriteLog');
+        const downloadButton = document.getElementById('downloadButton');
 
         let drawing = false;
+        let brushColor = '#000000';
+        const undoStack = [];
+        let selectedFeature = null;
 
-        canvas.addEventListener('mousedown', () => {
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mousemove', draw);
+
+        function startDrawing(event) {
             drawing = true;
-        });
+            saveState();
+            draw(event);
+        }
 
-        canvas.addEventListener('mouseup', () => {
+        function stopDrawing() {
             drawing = false;
             ctx.beginPath();
-        });
-
-        canvas.addEventListener('mousemove', draw);
+        }
 
         function draw(event) {
             if (!drawing) return;
 
             ctx.lineWidth = 5;
             ctx.lineCap = 'round';
-            ctx.strokeStyle = '#4a90e2';
+            ctx.strokeStyle = brushColor;
 
             ctx.lineTo(event.offsetX, event.offsetY);
             ctx.stroke();
@@ -164,11 +238,44 @@
             ctx.moveTo(event.offsetX, event.offsetY);
         }
 
-        confirmButton.addEventListener('click', () => {
+        function saveState() {
+            undoStack.push(canvas.toDataURL());
+        }
+
+        function undo() {
+            if (undoStack.length === 0) return;
+            const lastState = undoStack.pop();
+            const img = new Image();
+            img.src = lastState;
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+        }
+
+        function setBrushColor(color) {
+            brushColor = color;
+        }
+
+        function selectFeature(feature) {
+            selectedFeature = feature;
+            document.querySelectorAll('.feature-buttons button').forEach(btn => {
+                btn.style.backgroundColor = btn.id.includes(feature) ? '#4caf50' : '#fff';
+                btn.style.color = btn.id.includes(feature) ? '#fff' : '#4caf50';
+            });
+        }
+
+        confirmDrawingButton.addEventListener('click', () => {
             const dataURL = canvas.toDataURL('image/png');
             displayImage.src = dataURL;
             drawingLog.textContent = "Your drawing was saved successfully!";
+        });
 
+        confirmFeatureButton.addEventListener('click', () => {
+            if (!selectedFeature) {
+                drawingLog.textContent = "Please select a feature first.";
+                return;
+            }
             loadingBar.style.width = '0';
             setTimeout(() => {
                 loadingBar.style.width = '100%';
@@ -177,7 +284,18 @@
             setTimeout(() => {
                 outputImage.src = 'https://raw.githubusercontent.com/Addressmehari/aispritesheet/main/download.png';
                 spriteLog.textContent = "Sprite sheet generated in 7 seconds with 95% accuracy.";
+                downloadButton.style.display = 'block';
+                downloadButton.href = outputImage.src;
+                downloadButton.download = "sprite_sheet.png";
             }, 7000);
+
+            // Remove buttons
+            document.querySelector('.feature-buttons').style.display = 'none';
+            confirmFeatureButton.style.display = 'none';
+        });
+
+        downloadButton.addEventListener('click', () => {
+            spriteLog.textContent = "Sprite sheet downloaded successfully!";
         });
     </script>
 </body>
