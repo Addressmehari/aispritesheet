@@ -10,6 +10,7 @@
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #3b5998, #00c6ff);
             color: white;
+            overflow-x: hidden;
         }
 
         header {
@@ -46,7 +47,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
-            width: 90%;
+            width: 100%;
             max-width: 350px;
             animation: fadeIn 1s ease-in-out;
         }
@@ -139,8 +140,8 @@
 
         @media (max-width: 600px) {
             canvas {
-                width: 300px;
-                height: 300px;
+                width: 280px;
+                height: 280px;
             }
 
             .container {
@@ -209,12 +210,14 @@
 
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            startDrawing(e.touches[0].clientX, e.touches[0].clientY);
+            const rect = canvas.getBoundingClientRect();
+            startDrawing(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
         });
 
         canvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
-            draw(e.touches[0].clientX, e.touches[0].clientY);
+            const rect = canvas.getBoundingClientRect();
+            draw(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
         });
 
         canvas.addEventListener('touchend', () => {
